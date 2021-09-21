@@ -1,0 +1,12 @@
+name: ChunkFriends
+version: ${project.version}
+main: dev.lightdream.chunkfriends.Main
+authors: [ L1ghtDream ]
+website: https://lightdream.dev
+softdepend:
+  - LightDreamAPI
+commands:
+  st:
+    description: NA
+  ld-api:
+    description: NA
