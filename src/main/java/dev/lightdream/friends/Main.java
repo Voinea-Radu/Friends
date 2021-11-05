@@ -1,16 +1,15 @@
-package dev.lightdream.chunkfriends;
+package dev.lightdream.friends;
 
 import dev.lightdream.api.API;
 import dev.lightdream.api.LightDreamPlugin;
+import dev.lightdream.api.configs.SQLConfig;
 import dev.lightdream.api.databases.User;
-import dev.lightdream.api.files.config.SQLConfig;
 import dev.lightdream.api.managers.MessageManager;
-import dev.lightdream.chunkfriends.commands.BaseCommand;
-import dev.lightdream.chunkfriends.files.config.Config;
-import dev.lightdream.chunkfriends.files.config.Lang;
-import dev.lightdream.chunkfriends.files.dto.FriendsGUIConfig;
-import dev.lightdream.chunkfriends.managers.DatabaseManager;
-import dev.lightdream.chunkfriends.managers.FriendsManager;
+import dev.lightdream.friends.commands.BaseCommand;
+import dev.lightdream.friends.configs.Config;
+import dev.lightdream.friends.configs.Lang;
+import dev.lightdream.friends.managers.DatabaseManager;
+import dev.lightdream.friends.managers.EventManager;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -25,18 +24,18 @@ public final class Main extends LightDreamPlugin {
     //Settings
     public Config config;
     public Lang lang;
-    public FriendsGUIConfig friendsGUIConfig;
 
     //Managers
-    public FriendsManager friendsManager;
-public DatabaseManager databaseManager;
+    public DatabaseManager databaseManager;
+    public EventManager eventManager;
 
 
     @Override
     public void onEnable() {
-        init("ChunkFriends", "cf", "1.0");
+        init("Friends", "friends", "1.0");
         instance = this;
         databaseManager = new DatabaseManager(this);
+        this.eventManager = new EventManager(this);
     }
 
 
@@ -52,7 +51,6 @@ public DatabaseManager databaseManager;
         baseConfig = config;
         lang = fileManager.load(Lang.class, fileManager.getFile(baseConfig.baseLang));
         baseLang = lang;
-        friendsGUIConfig = fileManager.load(FriendsGUIConfig.class);
     }
 
     @Override
@@ -66,8 +64,13 @@ public DatabaseManager databaseManager;
     }
 
     @Override
+    public void registerUser(Player player) {
+        databaseManager.getUser(player);
+    }
+
+    @Override
     public void loadBaseCommands() {
-        baseCommands.add(new BaseCommand(this));
+        baseSubCommands.add(new BaseCommand(this));
     }
 
     @Override

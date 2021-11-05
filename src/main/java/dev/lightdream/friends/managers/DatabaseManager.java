@@ -1,7 +1,7 @@
-package dev.lightdream.chunkfriends.managers;
+package dev.lightdream.friends.managers;
 
 import dev.lightdream.api.IAPI;
-import dev.lightdream.chunkfriends.database.User;
+import dev.lightdream.friends.database.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,6 +19,10 @@ public class DatabaseManager  extends dev.lightdream.api.managers.DatabaseManage
         setup(User.class);
     }
 
+    @Override
+    public <T> List<T> getAll(Class<T> clazz) {
+        return super.getAll(clazz, false);
+    }
 
     public @NotNull User getUser(@NotNull UUID uuid) {
         Optional<User> optionalUser = getAll(User.class).stream().filter(user -> user.uuid.equals(uuid)).findFirst();

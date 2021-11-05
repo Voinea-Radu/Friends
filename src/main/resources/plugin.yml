@@ -1,12 +1,12 @@
-name: ChunkFriends
+name: Friends
 version: ${project.version}
-main: dev.lightdream.chunkfriends.Main
+main: dev.lightdream.friends.Main
 authors: [ L1ghtDream ]
 website: https://lightdream.dev
 softdepend:
   - LightDreamAPI
 commands:
-  st:
+  friends:
     description: NA
   ld-api:
     description: NA
