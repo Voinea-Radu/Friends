@@ -1,9 +1,6 @@
 package dev.lightdream.friends.gui.functions;
 
-import dev.lightdream.friends.gui.functions.functions.BackPage;
-import dev.lightdream.friends.gui.functions.functions.NextPage;
-import dev.lightdream.friends.gui.functions.functions.RemoveFriend;
-import dev.lightdream.friends.gui.functions.functions.RequestFriend;
+import dev.lightdream.friends.gui.functions.functions.*;
 
 @SuppressWarnings("unused")
 public enum GUIFunctions {
@@ -11,6 +8,14 @@ public enum GUIFunctions {
     REMOVE_FRIEND(new RemoveFriend()),
     NEXT_PAGE(new NextPage()),
     REQUEST_FRIEND(new RequestFriend()),
+    OPEN_GUI(new OpenGUI()),
+    SHOW_INVENTORY(new ShowInventory()),
+    TELEPORT(new Teleport()),
+    CHANGE_SETTING(new ChangeSetting()),
+    CREATE_PARTY(new CreateParty()),
+    DISBAND_PARTY(new DisbandParty()),
+    INVITE_PARTY(new InviteParty()),
+    LEAVE_PARTY(new LeaveParty()),
     BACK_PAGE(new BackPage());
 
     public GUIFunction function;

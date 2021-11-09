@@ -4,7 +4,6 @@ import dev.lightdream.api.IAPI;
 import dev.lightdream.api.dto.GUIConfig;
 import dev.lightdream.api.dto.GUIItem;
 import dev.lightdream.api.gui.GUI;
-import dev.lightdream.api.managers.PAPI;
 import dev.lightdream.api.utils.MessageBuilder;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.database.User;
@@ -18,33 +17,49 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import java.util.HashMap;
 import java.util.List;
 
-public class PlayerGUI extends GUI {
+public class SettingsGUI extends GUI {
 
-    User user;
-    User target;
+    private final User user;
 
-    public PlayerGUI(IAPI api, User user, User target) {
-        super(api, user, 0);
+    public SettingsGUI(IAPI api, User user) {
+        super(api, user);
         this.user = user;
-        this.target = target;
     }
 
     @Override
     public String parse(String raw, String id, Integer index) {
-        String output = new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", target.name);
-        }}).parseString();
-        return PAPI.parse(user.getOfflinePlayer(), output);
+        if (id.equals("toggle_friend_requests")) {
+            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+                put("status", user.friendRequest ?
+                        Main.instance.lang.enabled :
+                        Main.instance.lang.disabled);
+            }}).parseString();
+        }
+        if (id.equals("toggle_teleports")) {
+            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+                put("status", user.teleport ?
+                        Main.instance.lang.enabled :
+                        Main.instance.lang.disabled);
+            }}).parseString();
+        }
+        if (id.equals("toggle_party_invites")) {
+            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+                put("status", user.partyInvite ?
+                        Main.instance.lang.enabled :
+                        Main.instance.lang.disabled);
+            }}).parseString();
+        }
+        return raw;
     }
 
     @Override
     public GUIConfig setConfig() {
-        return Main.instance.config.playerGUI;
+        return Main.instance.config.settingsGUI;
     }
 
     @Override
     public InventoryProvider getProvider() {
-        return new PlayerGUI(Main.instance, user, target);
+        return new SettingsGUI(Main.instance, user);
     }
 
     @Override
@@ -52,21 +67,8 @@ public class PlayerGUI extends GUI {
         GUIFunctions.valueOf(function.toUpperCase()).function.execute(this, Main.instance.databaseManager.getUser(player), args);
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean canAddItem(GUIItem guiItem, String id, Integer index) {
-        if (id.equals("add_friend") && user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("remove_friend") && !user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("inventory") && !user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("teleport") && !user.isFriend(target)) {
-            return false;
-        }
+    public boolean canAddItem(GUIItem guiItem, String s, Integer integer) {
         return true;
     }
 

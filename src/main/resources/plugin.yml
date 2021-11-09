@@ -8,5 +8,9 @@ softdepend:
 commands:
   friends:
     description: NA
+  mainmenu:
+    description: NA
+  party:
+    description: NA
   ld-api:
     description: NA

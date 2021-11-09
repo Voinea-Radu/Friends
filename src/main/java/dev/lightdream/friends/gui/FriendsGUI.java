@@ -20,20 +20,45 @@ import java.util.List;
 public class FriendsGUI extends GUI {
 
     private final User user;
+    private final String type;
+
+    public FriendsGUI(IAPI api, User user) {
+        super(api, user);
+        this.user = user;
+        this.type = "open_gui";
+    }
+
+    public FriendsGUI(IAPI api, User user, String type) {
+        super(api, user);
+        this.user = user;
+        this.type = type;
+    }
 
     public FriendsGUI(IAPI api, User user, int page) {
         super(api, user, page);
         this.user = user;
+        this.type = "open_gui";
+    }
+
+    public FriendsGUI(IAPI api, User user, int page, String type) {
+        super(api, user, page);
+        this.user = user;
+        this.type = type;
     }
 
     @Override
     public String parse(String raw, String id, Integer index) {
+
+        raw = new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+            put("type", type);
+        }}).parseString();
+
         if (id.equals("friend_head")) {
             if (index >= user.friends.size()) {
                 return raw;
             }
-            User target = Main.instance.databaseManager.getUser(user.friends.get(index));
-            if(target==null){
+            User target = Main.instance.databaseManager.getUser((Integer) user.friends.toArray()[index]);
+            if (target == null) {
                 return raw;
             }
             return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
@@ -51,7 +76,7 @@ public class FriendsGUI extends GUI {
 
     @Override
     public InventoryProvider getProvider() {
-        return new FriendsGUI(api, user, 0);
+        return new FriendsGUI(api, user, getPage(), type);
     }
 
     @Override
@@ -62,11 +87,6 @@ public class FriendsGUI extends GUI {
     @Override
     public boolean canAddItem(GUIItem guiItem, String s, Integer index) {
         return index < user.friends.size();
-    }
-
-    @Override
-    public HashMap<Class<?>, Object> getArgs() {
-        return new HashMap<>();
     }
 
     @Override

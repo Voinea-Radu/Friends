@@ -1,13 +1,11 @@
 package dev.lightdream.friends.gui;
 
 import dev.lightdream.api.IAPI;
+import dev.lightdream.api.databases.User;
 import dev.lightdream.api.dto.GUIConfig;
 import dev.lightdream.api.dto.GUIItem;
 import dev.lightdream.api.gui.GUI;
-import dev.lightdream.api.managers.PAPI;
-import dev.lightdream.api.utils.MessageBuilder;
 import dev.lightdream.friends.Main;
-import dev.lightdream.friends.database.User;
 import dev.lightdream.friends.gui.functions.GUIFunctions;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -15,36 +13,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 
-import java.util.HashMap;
 import java.util.List;
 
-public class PlayerGUI extends GUI {
-
-    User user;
-    User target;
-
-    public PlayerGUI(IAPI api, User user, User target) {
-        super(api, user, 0);
-        this.user = user;
-        this.target = target;
+public class MainMenuGUI extends GUI {
+    public MainMenuGUI(IAPI api, User user) {
+        super(api, user);
     }
 
     @Override
-    public String parse(String raw, String id, Integer index) {
-        String output = new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", target.name);
-        }}).parseString();
-        return PAPI.parse(user.getOfflinePlayer(), output);
+    public String parse(String s, String s1, Integer integer) {
+        return s;
     }
 
     @Override
     public GUIConfig setConfig() {
-        return Main.instance.config.playerGUI;
+        return Main.instance.config.mainMenuGUI;
     }
 
     @Override
     public InventoryProvider getProvider() {
-        return new PlayerGUI(Main.instance, user, target);
+        return new MainMenuGUI(api, getUser());
     }
 
     @Override
@@ -52,21 +40,8 @@ public class PlayerGUI extends GUI {
         GUIFunctions.valueOf(function.toUpperCase()).function.execute(this, Main.instance.databaseManager.getUser(player), args);
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     @Override
-    public boolean canAddItem(GUIItem guiItem, String id, Integer index) {
-        if (id.equals("add_friend") && user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("remove_friend") && !user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("inventory") && !user.isFriend(target)) {
-            return false;
-        }
-        if (id.equals("teleport") && !user.isFriend(target)) {
-            return false;
-        }
+    public boolean canAddItem(GUIItem guiItem, String s, Integer integer) {
         return true;
     }
 

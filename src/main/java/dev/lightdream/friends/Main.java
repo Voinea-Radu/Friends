@@ -4,8 +4,15 @@ import dev.lightdream.api.API;
 import dev.lightdream.api.LightDreamPlugin;
 import dev.lightdream.api.configs.SQLConfig;
 import dev.lightdream.api.databases.User;
+import dev.lightdream.api.managers.CommandManager;
 import dev.lightdream.api.managers.MessageManager;
-import dev.lightdream.friends.commands.BaseCommand;
+import dev.lightdream.api.managers.database.IDatabaseManagerImpl;
+import dev.lightdream.friends.commands.MainMenuBase;
+import dev.lightdream.friends.commands.Party.*;
+import dev.lightdream.friends.commands.friends.Accept;
+import dev.lightdream.friends.commands.friends.Add;
+import dev.lightdream.friends.commands.friends.Base;
+import dev.lightdream.friends.commands.friends.Remove;
 import dev.lightdream.friends.configs.Config;
 import dev.lightdream.friends.configs.Lang;
 import dev.lightdream.friends.managers.DatabaseManager;
@@ -14,6 +21,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public final class Main extends LightDreamPlugin {
@@ -32,10 +40,22 @@ public final class Main extends LightDreamPlugin {
 
     @Override
     public void onEnable() {
-        init("Friends", "friends", "1.0");
         instance = this;
+        init("Friends", "friends", "1.0");
         databaseManager = new DatabaseManager(this);
         this.eventManager = new EventManager(this);
+        //noinspection ArraysAsListWithZeroOrOneArgument
+        new CommandManager(Main.instance, "mainmenu", Arrays.asList(
+                new MainMenuBase()
+        ));
+        new CommandManager(Main.instance, "party", Arrays.asList(
+                new dev.lightdream.friends.commands.Party.Base(),
+                new Chat(),
+                new Disband(),
+                new Invite(),
+                new Join(),
+                new Leave()
+        ));
     }
 
 
@@ -70,7 +90,10 @@ public final class Main extends LightDreamPlugin {
 
     @Override
     public void loadBaseCommands() {
-        baseSubCommands.add(new BaseCommand(this));
+        baseSubCommands.add(new Base());
+        baseSubCommands.add(new Add());
+        baseSubCommands.add(new Accept());
+        baseSubCommands.add(new Remove());
     }
 
     @Override
@@ -95,8 +118,9 @@ public final class Main extends LightDreamPlugin {
         return langs;
     }
 
+
     @Override
-    public DatabaseManager getDatabaseManager() {
+    public IDatabaseManagerImpl getDatabaseManager() {
         return databaseManager;
     }
 

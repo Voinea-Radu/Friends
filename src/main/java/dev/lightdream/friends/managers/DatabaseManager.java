@@ -1,6 +1,8 @@
 package dev.lightdream.friends.managers;
 
 import dev.lightdream.api.IAPI;
+import dev.lightdream.api.managers.database.IDatabaseManagerImpl;
+import dev.lightdream.api.managers.database.OmrLiteDatabaseManager;
 import dev.lightdream.friends.database.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -9,19 +11,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class DatabaseManager  extends dev.lightdream.api.managers.DatabaseManager {
+public class DatabaseManager extends OmrLiteDatabaseManager implements IDatabaseManagerImpl {
     public DatabaseManager(IAPI api) {
         super(api);
         setup(User.class);
-    }
-
-    @Override
-    public <T> List<T> getAll(Class<T> clazz) {
-        return super.getAll(clazz, false);
     }
 
     public @NotNull User getUser(@NotNull UUID uuid) {
@@ -66,7 +62,6 @@ public class DatabaseManager  extends dev.lightdream.api.managers.DatabaseManage
         }
         return getUser((Player) sender);
     }
-
 
 
 }

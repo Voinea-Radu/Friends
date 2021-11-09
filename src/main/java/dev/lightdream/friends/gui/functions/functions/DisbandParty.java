@@ -6,9 +6,9 @@ import dev.lightdream.friends.gui.functions.GUIFunction;
 
 import java.util.List;
 
-public class NextPage implements GUIFunction {
+public class DisbandParty implements GUIFunction {
     @Override
     public void execute(GUI gui, User user, List<String> args) {
-        gui.nextPage();
+        user.disbandParty();
     }
 }
