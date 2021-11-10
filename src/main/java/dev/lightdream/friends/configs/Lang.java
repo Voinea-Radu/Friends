@@ -27,6 +27,7 @@ public class Lang extends dev.lightdream.api.configs.Lang {
     public String theOwner = "You are the owner of the party. You can not leave it. You can try disbanding it.";
     public String notPartyOwner = "You are not the party owner";
     public String partyDisbanded = "Party disbanded";
+    public String notInvited = "You have not been invited";
 
 
 }

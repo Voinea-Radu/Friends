@@ -4,6 +4,7 @@ import dev.lightdream.api.IAPI;
 import dev.lightdream.api.dto.GUIConfig;
 import dev.lightdream.api.dto.GUIItem;
 import dev.lightdream.api.gui.GUI;
+import dev.lightdream.api.managers.PAPI;
 import dev.lightdream.api.utils.MessageBuilder;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.database.User;
@@ -55,17 +56,17 @@ public class FriendsGUI extends GUI {
 
         if (id.equals("friend_head")) {
             if (index >= user.friends.size()) {
-                return raw;
+                return PAPI.parse(user.getOfflinePlayer(), raw);
             }
             User target = Main.instance.databaseManager.getUser((Integer) user.friends.toArray()[index]);
             if (target == null) {
-                return raw;
+                return PAPI.parse(user.getOfflinePlayer(), raw);
             }
-            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+            return PAPI.parse(user.getOfflinePlayer(), new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
                 put("player_name", target.name);
-            }}).parseString();
+            }}).parseString());
         } else {
-            return raw;
+            return PAPI.parse(user.getOfflinePlayer(), raw);
         }
     }
 

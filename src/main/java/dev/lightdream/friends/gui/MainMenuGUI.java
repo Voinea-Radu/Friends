@@ -5,6 +5,7 @@ import dev.lightdream.api.databases.User;
 import dev.lightdream.api.dto.GUIConfig;
 import dev.lightdream.api.dto.GUIItem;
 import dev.lightdream.api.gui.GUI;
+import dev.lightdream.api.managers.PAPI;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.gui.functions.GUIFunctions;
 import fr.minuskube.inv.content.InventoryContents;
@@ -22,7 +23,7 @@ public class MainMenuGUI extends GUI {
 
     @Override
     public String parse(String s, String s1, Integer integer) {
-        return s;
+        return PAPI.parse(getUser().getOfflinePlayer(),s);
     }
 
     @Override

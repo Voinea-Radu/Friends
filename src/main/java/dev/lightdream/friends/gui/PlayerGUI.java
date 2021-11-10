@@ -31,10 +31,9 @@ public class PlayerGUI extends GUI {
 
     @Override
     public String parse(String raw, String id, Integer index) {
-        String output = new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+        return PAPI.parse(user.getOfflinePlayer(), new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
             put("player_name", target.name);
-        }}).parseString();
-        return PAPI.parse(user.getOfflinePlayer(), output);
+        }}).parseString());
     }
 
     @Override

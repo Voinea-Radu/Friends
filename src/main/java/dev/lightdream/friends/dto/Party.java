@@ -28,6 +28,19 @@ public class Party {
             user.sendMessage(Main.instance, Main.instance.lang.youAreAlreadyInParty);
             return;
         }
+        if (invites.contains(user)) {
+            boolean ok = false;
+            for (User u : this.users) {
+                if (u.isFriend(user)) {
+                    ok = true;
+                    break;
+                }
+            }
+            if (!ok) {
+                user.sendMessage(Main.instance, Main.instance.lang.notInvited);
+                return;
+            }
+        }
         user.leaveParty(false);
         sendMessage(new MessageBuilder(Main.instance.lang.joinedParty).addPlaceholders(new HashMap<String, String>() {{
             put("player_name", user.name);

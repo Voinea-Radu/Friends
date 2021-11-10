@@ -9,7 +9,7 @@ import java.util.List;
 public class Accept extends SubCommand {
 
     public Accept() {
-        super(Main.instance, "accept", true, false, "[player]]");
+        super(Main.instance, "accept", true, false, "[player]");
     }
 
     @Override
@@ -19,7 +19,7 @@ public class Accept extends SubCommand {
             sendUsage(user);
             return;
         }
-        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(1));
+        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(0));
         if (target == null) {
             api.getMessageManager().sendMessage(user, Main.instance.lang.invalidUser);
             return;

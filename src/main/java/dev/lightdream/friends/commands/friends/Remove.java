@@ -18,7 +18,7 @@ public class Remove extends SubCommand {
             sendUsage(user);
             return;
         }
-        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(1));
+        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(0));
         if (target == null) {
             api.getMessageManager().sendMessage(user, Main.instance.lang.invalidUser);
             return;

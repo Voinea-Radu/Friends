@@ -88,6 +88,11 @@ public class Config extends dev.lightdream.api.configs.Config {
                             put("teleport", "%player_name%");
                         }})
                 ));
+                put("join_party", new GUIItem(
+                        new Item(XMaterial.CAKE, 4, 1, "Join Party", new ArrayList<>()),
+                        new GUIItem.GUIItemArgs(new HashMap<String, Object>() {{
+                            put("join_party", "%player_name%");
+                        }})));
             }},
             false
     );

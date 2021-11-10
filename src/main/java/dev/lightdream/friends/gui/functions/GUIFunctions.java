@@ -16,6 +16,7 @@ public enum GUIFunctions {
     DISBAND_PARTY(new DisbandParty()),
     INVITE_PARTY(new InviteParty()),
     LEAVE_PARTY(new LeaveParty()),
+    JOIN_PARTY(new JoinParty()),
     BACK_PAGE(new BackPage());
 
     public GUIFunction function;

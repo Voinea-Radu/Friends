@@ -4,6 +4,7 @@ import dev.lightdream.api.IAPI;
 import dev.lightdream.api.dto.GUIConfig;
 import dev.lightdream.api.dto.GUIItem;
 import dev.lightdream.api.gui.GUI;
+import dev.lightdream.api.managers.PAPI;
 import dev.lightdream.api.utils.MessageBuilder;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.database.User;
@@ -29,27 +30,27 @@ public class SettingsGUI extends GUI {
     @Override
     public String parse(String raw, String id, Integer index) {
         if (id.equals("toggle_friend_requests")) {
-            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+            return PAPI.parse(user.getOfflinePlayer(), new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
                 put("status", user.friendRequest ?
                         Main.instance.lang.enabled :
                         Main.instance.lang.disabled);
-            }}).parseString();
+            }}).parseString());
         }
         if (id.equals("toggle_teleports")) {
-            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+            return PAPI.parse(user.getOfflinePlayer(), new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
                 put("status", user.teleport ?
                         Main.instance.lang.enabled :
                         Main.instance.lang.disabled);
-            }}).parseString();
+            }}).parseString());
         }
         if (id.equals("toggle_party_invites")) {
-            return new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
+            return PAPI.parse(user.getOfflinePlayer(), new MessageBuilder(raw).addPlaceholders(new HashMap<String, String>() {{
                 put("status", user.partyInvite ?
                         Main.instance.lang.enabled :
                         Main.instance.lang.disabled);
-            }}).parseString();
+            }}).parseString());
         }
-        return raw;
+        return PAPI.parse(user.getOfflinePlayer(), raw);
     }
 
     @Override

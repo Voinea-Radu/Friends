@@ -25,7 +25,7 @@ public class Invite extends SubCommand {
             user.sendMessage(Main.instance, Main.instance.lang.partyDoesNotExist);
             return;
         }
-        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(1));
+        dev.lightdream.friends.database.User target = Main.instance.databaseManager.getUser(args.get(0));
         if (target == null) {
             user.sendMessage(Main.instance, Main.instance.lang.invalidUser);
             return;
