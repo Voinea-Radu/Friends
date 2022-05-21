@@ -1,67 +1,53 @@
 package dev.lightdream.friends.managers;
 
-import dev.lightdream.api.IAPI;
-import dev.lightdream.api.managers.database.IDatabaseManagerImpl;
-import dev.lightdream.api.managers.database.OmrLiteDatabaseManager;
+import dev.lightdream.databasemanager.database.ProgrammaticHikariDatabaseManager;
+import dev.lightdream.databasemanager.dto.QueryConstrains;
+import dev.lightdream.friends.Main;
 import dev.lightdream.friends.database.User;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
 
-import java.util.Optional;
 import java.util.UUID;
 
-public class DatabaseManager extends OmrLiteDatabaseManager implements IDatabaseManagerImpl {
-    public DatabaseManager(IAPI api) {
-        super(api);
-        setup(User.class);
+public class DatabaseManager extends ProgrammaticHikariDatabaseManager {
+    public DatabaseManager() {
+        super(Main.instance);
     }
 
     public @NotNull User getUser(@NotNull UUID uuid) {
-        Optional<User> optionalUser = getAll(User.class).stream().filter(user -> user.uuid.equals(uuid)).findFirst();
+        User user = get(User.class)
+                .query(new QueryConstrains().equals("uuid", uuid))
+                .query().stream().findAny().orElse(null);
 
-        if (optionalUser.isPresent()) {
-            return optionalUser.get();
+        if (user != null) {
+            return user;
         }
 
-        User user = new User(uuid, Bukkit.getOfflinePlayer(uuid).getName(), api.getSettings().baseLang);
+        user = new User(uuid, Sponge.getServer().getPlayer(uuid).get().getName());
         save(user);
         return user;
     }
 
-    @SuppressWarnings("unused")
     public @Nullable User getUser(@NotNull String name) {
-        Optional<User> optionalUser = getAll(User.class).stream().filter(user -> user.name.equals(name)).findFirst();
-
-        return optionalUser.orElse(null);
-    }
-
-    @SuppressWarnings("unused")
-    public @NotNull User getUser(@NotNull OfflinePlayer player) {
-        return getUser(player.getUniqueId());
+        return get(User.class)
+                .query(new QueryConstrains().equals("name", name))
+                .query().stream().findAny().orElse(null);
     }
 
     public @NotNull User getUser(@NotNull Player player) {
         return getUser(player.getUniqueId());
     }
 
-    @SuppressWarnings("unused")
     public @Nullable User getUser(int id) {
-        Optional<User> optionalUser = getAll(User.class).stream().filter(user -> user.id == id).findFirst();
-
-        return optionalUser.orElse(null);
+        return get(User.class)
+                .query(new QueryConstrains().equals("id", id))
+                .query().stream().findAny().orElse(null);
     }
 
-    @SuppressWarnings("unused")
-    public @Nullable User getUser(@NotNull CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            return null;
-        }
-        return getUser((Player) sender);
+    @Override
+    public void setup() {
+        setup(User.class);
     }
-
-
 }

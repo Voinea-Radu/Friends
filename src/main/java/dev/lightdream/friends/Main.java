@@ -1,135 +1,121 @@
 package dev.lightdream.friends;
 
-import dev.lightdream.api.API;
-import dev.lightdream.api.LightDreamPlugin;
-import dev.lightdream.api.configs.SQLConfig;
-import dev.lightdream.api.databases.User;
-import dev.lightdream.api.managers.CommandManager;
-import dev.lightdream.api.managers.MessageManager;
-import dev.lightdream.api.managers.database.IDatabaseManagerImpl;
-import dev.lightdream.friends.commands.MainMenuBase;
-import dev.lightdream.friends.commands.Party.*;
-import dev.lightdream.friends.commands.friends.Accept;
-import dev.lightdream.friends.commands.friends.Add;
-import dev.lightdream.friends.commands.friends.Base;
-import dev.lightdream.friends.commands.friends.Remove;
+import dev.lightdream.commandmanager.CommandMain;
+import dev.lightdream.commandmanager.dto.CommandLang;
+import dev.lightdream.commandmanager.manager.CommandManager;
+import dev.lightdream.databasemanager.DatabaseMain;
+import dev.lightdream.databasemanager.database.IDatabaseManager;
+import dev.lightdream.databasemanager.dto.DriverConfig;
+import dev.lightdream.databasemanager.dto.SQLConfig;
+import dev.lightdream.filemanager.FileManager;
+import dev.lightdream.filemanager.FileManagerMain;
 import dev.lightdream.friends.configs.Config;
 import dev.lightdream.friends.configs.Lang;
 import dev.lightdream.friends.managers.DatabaseManager;
 import dev.lightdream.friends.managers.EventManager;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
+import dev.lightdream.logger.LoggableMain;
+import dev.lightdream.logger.Logger;
+import dev.lightdream.messagebuilder.MessageBuilderManager;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
+import org.spongepowered.api.plugin.Plugin;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.File;
 
-public final class Main extends LightDreamPlugin {
+@Plugin(
+        id = "friends",
+        name = "Friends",
+        description = "Friends for PokeNinjas",
+        url = "https://lightdream.dev",
+        authors = {
+                "LightDream"
+        }
+)
+public final class Main implements CommandMain, DatabaseMain, FileManagerMain, LoggableMain {
 
 
     public static Main instance;
 
-    //Settings
+    // Config
     public Config config;
     public Lang lang;
+    public SQLConfig sqlConfig;
+    public DriverConfig driverConfig;
 
-    //Managers
+
+    // Managers
     public DatabaseManager databaseManager;
     public EventManager eventManager;
+    public CommandManager commandManager;
+    public FileManager fileManager;
 
 
-    @Override
-    public void onEnable() {
+    @Listener
+    public void onServerStart(GameStartedServerEvent event) {
+        Logger.init(this);
         instance = this;
-        init("Friends", "friends", "1.0");
-        databaseManager = new DatabaseManager(this);
-        this.eventManager = new EventManager(this);
-        //noinspection ArraysAsListWithZeroOrOneArgument
-        new CommandManager(Main.instance, "mainmenu", Arrays.asList(
-                new MainMenuBase()
-        ));
-        new CommandManager(Main.instance, "party", Arrays.asList(
-                new dev.lightdream.friends.commands.Party.Base(),
-                new Chat(),
-                new Disband(),
-                new Invite(),
-                new Join(),
-                new Leave()
-        ));
-    }
+        this.fileManager = new FileManager(this);
+        MessageBuilderManager.init(fileManager);
+        loadConfigs();
 
+        this.databaseManager = new DatabaseManager();
+        this.eventManager = new EventManager();
+        commandManager = new CommandManager(Main.instance);
 
-    @Override
-    public @NotNull String parsePapi(OfflinePlayer offlinePlayer, String s) {
-        return "";
+        Logger.good("Friends (by LightDream) has been loaded!");
     }
 
     @Override
+    public CommandLang getLang() {
+        return null;
+    }
+
     public void loadConfigs() {
         sqlConfig = fileManager.load(SQLConfig.class);
         config = fileManager.load(Config.class);
-        baseConfig = config;
-        lang = fileManager.load(Lang.class, fileManager.getFile(baseConfig.baseLang));
-        baseLang = lang;
+        driverConfig = fileManager.load(DriverConfig.class);
+        sqlConfig = fileManager.load(SQLConfig.class);
+        lang = fileManager.load(Lang.class);
     }
 
     @Override
-    public void disable() {
-
+    public CommandManager getCommandManager() {
+        return commandManager;
     }
 
     @Override
-    public void registerFileManagerModules() {
-
+    public String getPackageName() {
+        return "dev.lightdream.friends";
     }
 
     @Override
-    public void registerUser(Player player) {
-        databaseManager.getUser(player);
-    }
-
-    @Override
-    public void loadBaseCommands() {
-        baseSubCommands.add(new Base());
-        baseSubCommands.add(new Add());
-        baseSubCommands.add(new Accept());
-        baseSubCommands.add(new Remove());
-    }
-
-    @Override
-    public MessageManager instantiateMessageManager() {
-        return new MessageManager(this, Main.class);
-    }
-
-    @Override
-    public void registerLangManager() {
-        API.instance.langManager.register(Main.class, getLangs());
-    }
-
-    @Override
-    public HashMap<String, Object> getLangs() {
-        HashMap<String, Object> langs = new HashMap<>();
-
-        baseConfig.langs.forEach(lang -> {
-            Lang l = fileManager.load(Lang.class, fileManager.getFile(lang));
-            langs.put(lang, l);
-        });
-
-        return langs;
+    public File getDataFolder() {
+        return new File(System.getProperty("user.dir") + "/config/Friends");
     }
 
 
     @Override
-    public IDatabaseManagerImpl getDatabaseManager() {
+    public SQLConfig getSqlConfig() {
+        return sqlConfig;
+    }
+
+    @Override
+    public DriverConfig getDriverConfig() {
+        return driverConfig;
+    }
+
+    @Override
+    public IDatabaseManager getDatabaseManager() {
         return databaseManager;
     }
 
     @Override
-    public void setLang(Player player, String s) {
-        User user = databaseManager.getUser(player);
-        user.setLang(s);
-        databaseManager.save(user);
+    public boolean debug() {
+        return config.debug;
     }
 
-
+    @Override
+    public void log(String s) {
+        System.out.println(s);
+    }
 }

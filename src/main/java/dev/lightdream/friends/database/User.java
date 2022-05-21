@@ -1,19 +1,30 @@
 package dev.lightdream.friends.database;
 
-import dev.lightdream.api.utils.MessageBuilder;
+import dev.lightdream.databasemanager.annotations.database.DatabaseField;
+import dev.lightdream.databasemanager.annotations.database.DatabaseTable;
+import dev.lightdream.databasemanager.dto.entry.impl.IntegerDatabaseEntry;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.dto.Party;
-import dev.lightdream.libs.j256.field.DataType;
-import dev.lightdream.libs.j256.field.DatabaseField;
+import dev.lightdream.messagebuilder.MessageBuilder;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class User extends dev.lightdream.api.databases.User {
+@DatabaseTable(table = "users")
+public class User extends IntegerDatabaseEntry {
 
-    @DatabaseField(columnName = "friends", dataType = DataType.SERIALIZABLE)
-    public HashSet<Integer> friends;
-    @DatabaseField(columnName = "requests", dataType = DataType.SERIALIZABLE)
-    public HashSet<Integer> friendRequests;
+    @DatabaseField(columnName = "name")
+    public String name;
+    @DatabaseField(columnName = "uuid")
+    public UUID uuid;
+    @DatabaseField(columnName = "friends")
+    public List<Integer> friends;
+    @DatabaseField(columnName = "requests")
+    public List<Integer> friendRequests;
     @DatabaseField(columnName = "friend_request")
     public boolean friendRequest;
     @DatabaseField(columnName = "teleport")
@@ -22,17 +33,23 @@ public class User extends dev.lightdream.api.databases.User {
     public boolean partyInvite;
     public Party party;
 
-    public User(UUID uuid, String name, String lang) {
-        super(Main.instance, uuid, name, lang);
-        this.friends = new HashSet<>();
-        this.friendRequests = new HashSet<>();
+    public User(UUID uuid, String name) {
+        super(Main.instance);
+        this.name = name;
+        this.uuid = uuid;
+        this.friends = new ArrayList<>();
+        this.friendRequests = new ArrayList<>();
         this.partyInvite = true;
         this.teleport = true;
         this.friendRequest = true;
     }
 
     public User() {
+        super(Main.instance);
+    }
 
+    public Player getPlayer() {
+        return Sponge.getServer().getPlayer(uuid).get();
     }
 
     public boolean isFriend(User user) {
@@ -42,7 +59,6 @@ public class User extends dev.lightdream.api.databases.User {
     public int getLimit() {
         int limit = 0;
         for (String permission : Main.instance.config.permissionMap.keySet()) {
-            //noinspection ConstantConditions
             if (getPlayer().hasPermission(permission)) {
                 limit = Main.instance.config.permissionMap.get(permission);
                 break;
@@ -51,60 +67,68 @@ public class User extends dev.lightdream.api.databases.User {
         return limit;
     }
 
+    public void sendMessage(String message) {
+        getPlayer().sendMessage(Text.of(message));
+    }
+
+    public void sendMessage(MessageBuilder message) {
+        getPlayer().sendMessage(Text.of(message.parse()));
+    }
+
     public void requestFriend(User target) {
 
         if (!target.friendRequest) {
-            sendMessage(Main.instance, Main.instance.lang.userDoesNotAllow);
+            sendMessage(Main.instance.lang.userDoesNotAllow);
             return;
         }
 
         if (friends.contains(target.id)) {
-            sendMessage(Main.instance, Main.instance.lang.alreadyFriends);
+            sendMessage(Main.instance.lang.alreadyFriends);
             return;
         }
 
         if (friendRequests.contains(target.id)) {
-            sendMessage(Main.instance, Main.instance.lang.alreadyRequested);
+            sendMessage(Main.instance.lang.alreadyRequested);
             return;
         }
         if (target.equals(this)) {
-            sendMessage(Main.instance, Main.instance.lang.cannotFriendYourself);
+            sendMessage(Main.instance.lang.cannotFriendYourself);
             return;
         }
         if (isFriend(target)) {
-            sendMessage(Main.instance, Main.instance.lang.alreadyFriends);
+            sendMessage(Main.instance.lang.alreadyFriends);
             return;
         }
 
         if (friends.size() >= getLimit()) {
-            sendMessage(Main.instance, Main.instance.lang.friendsLimit);
+            sendMessage(Main.instance.lang.friendsLimit);
             return;
         }
 
         this.friendRequests.add(target.id);
-        target.sendMessage(Main.instance, new MessageBuilder(Main.instance.lang.friendRequested).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", name);
-        }}));
+        target.sendMessage(new MessageBuilder(Main.instance.lang.friendRequested)
+                .parse("player_name", this.name)
+        );
         save();
-        sendMessage(Main.instance, Main.instance.lang.requested);
+        sendMessage(Main.instance.lang.requested);
     }
 
     public void addFriend(User friend) {
         if (friends.contains(friend.id)) {
-            sendMessage(Main.instance, Main.instance.lang.alreadyFriends);
+            sendMessage(Main.instance.lang.alreadyFriends);
             return;
         }
         friends.add(friend.id);
-        sendMessage(Main.instance, new MessageBuilder(Main.instance.lang.friendAdded).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", friend.name);
-        }}));
+        sendMessage(new MessageBuilder(Main.instance.lang.friendAdded)
+                .parse("player_name", friend.name)
+        );
         save();
     }
 
     public void removeFriend(User user) {
         friends.remove(user.id);
         save();
-        sendMessage(Main.instance, Main.instance.lang.friendRemoved);
+        sendMessage(Main.instance.lang.friendRemoved);
     }
 
     public List<User> getFriends() {
@@ -116,7 +140,7 @@ public class User extends dev.lightdream.api.databases.User {
 
     public void createParty() {
         if (hasParty()) {
-            sendMessage(Main.instance, Main.instance.lang.youAreAlreadyInParty);
+            sendMessage(Main.instance.lang.youAreAlreadyInParty);
             return;
         }
         this.party = new Party(this);
@@ -124,12 +148,12 @@ public class User extends dev.lightdream.api.databases.User {
 
     public void disbandParty() {
         if (!isPartyOwner()) {
-            sendMessage(Main.instance, Main.instance.lang.notPartyOwner);
+            sendMessage(Main.instance.lang.notPartyOwner);
             return;
         }
         party.disband();
         this.party = null;
-        sendMessage(Main.instance, Main.instance.lang.partyDisbanded);
+        sendMessage(Main.instance.lang.partyDisbanded);
     }
 
     public void joinParty(Party party) {
@@ -139,7 +163,7 @@ public class User extends dev.lightdream.api.databases.User {
 
     public void leaveParty() {
         if (!hasParty()) {
-            sendMessage(Main.instance, Main.instance.lang.notHaveParty);
+            sendMessage(Main.instance.lang.notHaveParty);
             return;
         }
         party.leave(this);
@@ -158,7 +182,7 @@ public class User extends dev.lightdream.api.databases.User {
 
     public void sendPartyMessage(String message) {
         if (!hasParty()) {
-            sendMessage(Main.instance, Main.instance.lang.notHaveParty);
+            sendMessage(Main.instance.lang.notHaveParty);
             return;
         }
         party.sendMessage(message);
@@ -166,7 +190,7 @@ public class User extends dev.lightdream.api.databases.User {
 
     public void inviteParty(User target) {
         if (!hasParty()) {
-            sendMessage(Main.instance, Main.instance.lang.notHaveParty);
+            sendMessage(Main.instance.lang.notHaveParty);
             return;
         }
 
@@ -184,19 +208,9 @@ public class User extends dev.lightdream.api.databases.User {
         return party.isOwner(this);
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "friends=" + friends +
-                ", friendRequests=" + friendRequests +
-                ", friendRequest=" + friendRequest +
-                ", teleport=" + teleport +
-                ", partyInvite=" + partyInvite +
-                ", party=" + party +
-                ", id=" + id +
-                ", uuid=" + uuid +
-                ", name='" + name + '\'' +
-                ", lang='" + lang + '\'' +
-                '}';
+    public boolean isOnline(){
+        return getPlayer().isOnline();
     }
+
+
 }

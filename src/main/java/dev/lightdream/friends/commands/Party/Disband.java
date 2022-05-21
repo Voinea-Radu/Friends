@@ -1,27 +1,21 @@
 package dev.lightdream.friends.commands.Party;
 
-import dev.lightdream.api.commands.SubCommand;
-import dev.lightdream.api.databases.User;
+import dev.lightdream.commandmanager.annotation.Command;
 import dev.lightdream.friends.Main;
-import dev.lightdream.friends.gui.PartyGUI;
+import dev.lightdream.friends.database.User;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.command.args.CommandContext;
+import org.spongepowered.api.entity.living.player.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Disband extends SubCommand {
+@Command(aliases = {"disband"}, parent = Base.class, onlyForPlayers = true)
+public class Disband extends dev.lightdream.commandmanager.command.Command {
     public Disband() {
-        super(Main.instance, "disband", true, false, "");
+        super(Main.instance);
     }
 
     @Override
-    public void execute(User u, List<String> args) {
-        dev.lightdream.friends.database.User user = (dev.lightdream.friends.database.User) u;
+    public void exec(@NotNull Player player, @NotNull CommandContext args) {
+        User user = Main.instance.databaseManager.getUser(player);
         user.disbandParty();
-        new PartyGUI(Main.instance, user).open();
-    }
-
-    @Override
-    public List<String> onTabComplete(User user, List<String> list) {
-        return new ArrayList<>();
     }
 }

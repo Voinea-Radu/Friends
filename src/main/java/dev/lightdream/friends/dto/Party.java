@@ -1,10 +1,9 @@
 package dev.lightdream.friends.dto;
 
-import dev.lightdream.api.utils.MessageBuilder;
 import dev.lightdream.friends.Main;
 import dev.lightdream.friends.database.User;
+import dev.lightdream.messagebuilder.MessageBuilder;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Party {
@@ -20,12 +19,12 @@ public class Party {
 
         users.add(user);
 
-        owner.sendMessage(Main.instance, Main.instance.lang.partyCreated);
+        owner.sendMessage(Main.instance.lang.partyCreated);
     }
 
     public void join(User user) {
         if (users.contains(user)) {
-            user.sendMessage(Main.instance, Main.instance.lang.youAreAlreadyInParty);
+            user.sendMessage(Main.instance.lang.youAreAlreadyInParty);
             return;
         }
         if (invites.contains(user)) {
@@ -37,26 +36,26 @@ public class Party {
                 }
             }
             if (!ok) {
-                user.sendMessage(Main.instance, Main.instance.lang.notInvited);
+                user.sendMessage(Main.instance.lang.notInvited);
                 return;
             }
         }
         user.leaveParty(false);
-        sendMessage(new MessageBuilder(Main.instance.lang.joinedParty).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", user.name);
-        }}).parseString());
+        sendMessage(new MessageBuilder(Main.instance.lang.joinedParty)
+                .parse("player_name", user.name)
+        );
         users.add(user);
         invites.remove(user);
     }
 
     public void leave(User user) {
         if (user.isPartyOwner()) {
-            user.sendMessage(Main.instance, Main.instance.lang.theOwner);
+            user.sendMessage(Main.instance.lang.theOwner);
             return;
         }
-        sendMessage(new MessageBuilder(Main.instance.lang.leftParty).addPlaceholders(new HashMap<String, String>() {{
-            put("player_name", user.name);
-        }}).parseString());
+        sendMessage(new MessageBuilder(Main.instance.lang.leftParty)
+                .parse("player_name", user.name)
+        );
         users.remove(user);
         user.party = null;
         user.save();
@@ -67,23 +66,32 @@ public class Party {
             if (!user.isOnline()) {
                 return;
             }
-            user.sendMessage(Main.instance, message);
+            user.sendMessage(message);
+        });
+    }
+
+    public void sendMessage(MessageBuilder message) {
+        users.forEach(user -> {
+            if (!user.isOnline()) {
+                return;
+            }
+            user.sendMessage(message);
         });
     }
 
     public void invite(User user, User target) {
-        user.sendMessage(Main.instance, Main.instance.lang.invited);
+        user.sendMessage(Main.instance.lang.invited);
         if (invites.contains(target)) {
-            user.sendMessage(Main.instance, Main.instance.lang.alreadyInvited);
+            user.sendMessage(Main.instance.lang.alreadyInvited);
             return;
         }
         if (users.contains(target) || target.hasParty()) {
-            user.sendMessage(Main.instance, Main.instance.lang.alreadyInParty);
+            user.sendMessage(Main.instance.lang.alreadyInParty);
         }
         if (target.isOnline()) {
-            target.sendMessage(Main.instance, new MessageBuilder(Main.instance.lang.partyInvite).addPlaceholders(new HashMap<String, String>() {{
-                put("player_name", owner.name);
-            }}));
+            target.sendMessage(new MessageBuilder(Main.instance.lang.partyInvite)
+                    .parse("player_name", owner.name)
+            );
         }
         invites.add(target);
     }
